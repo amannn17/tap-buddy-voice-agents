@@ -1,0 +1,12 @@
+# Raw VocalLabs exports contain phone numbers and recording links. Never commit them.
+raw-exports/
+*.csv
+*_raw*.xlsx
+Campaign_Wise_Report*
+# Unredacted listening lists
+*listening_list.xlsx
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+~$*
