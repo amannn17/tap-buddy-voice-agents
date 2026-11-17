@@ -4,15 +4,9 @@ Last updated: 17 Nov 2026
 
 ## Headline
 
-**Headline:** Designing a Hindi voice agent that parents don't hang up on
+**Headline:** Designing for the first 20 seconds: voice AI for school parents in India
 
 **Subtitle:** How I took Tap Buddy's outbound calling from a broken first pilot to a measured, versioned conversation system: 686 call attempts across five campaigns, five tracked prompt versions across two agents, and a funnel that shows exactly where each listener drops off.
-
-**Alternative headlines** (pick the one that fits your portfolio's tone):
-
-- From 0% to a measurable teach-back: conversation design for a Hindi voice AI
-- Designing for the first 20 seconds: voice AI for school parents in India
-- When the user can't see the interface: prompt engineering as UX design
 
 | At a glance |  |
 | --- | --- |
