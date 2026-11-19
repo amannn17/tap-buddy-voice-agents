@@ -1,21 +1,21 @@
 # Tap Buddy Voice Agents: Case Study
 
-Last updated: 17 Nov 2026
+Last updated: 19 Nov 2026
 
 ## Headline
 
 **Headline:** Designing for the first 20 seconds: voice AI for school parents in India
 
-**Subtitle:** How I took Tap Buddy's outbound calling from a broken first pilot to a measured, versioned conversation system: 686 call attempts across five campaigns, five tracked prompt versions across two agents, and a funnel that shows exactly where each listener drops off.
+**Subtitle:** How I took Tap Buddy's outbound calling from a broken first pilot to a measured, versioned conversation system: 886 call attempts across six campaigns, six tracked prompt versions across two agents, and a funnel that shows exactly where each listener drops off.
 
 | At a glance |  |
 | --- | --- |
 | Organisation | The Apprentice Project (TAP), Tap Buddy programme |
 | My role | Led the voice agent initiative: conversation design, prompt engineering, test design, campaign analysis, vendor coordination |
-| Timeline | 19 Oct to 18 Nov 2026 (three parent rounds and two valid teacher rounds so far; teacher round 4 on 18 Nov) |
+| Timeline | 19 Oct to 19 Nov 2026 (three parent rounds and three valid teacher rounds so far; parent round 4 and teacher round 5 planned) |
 | Agents | Parent awareness, teacher awareness |
 | Stack | VocalLabs (voice platform), Claude (prompt drafting, analysis, reporting), Excel test logs, FigJam call-flow maps |
-| Scale | 399 parents over three rounds and 200 teachers over two valid rounds (686 call attempts; a further 100 teacher calls on 1 to 2 Nov ran the parent agent by mistake and are excluded) |
+| Scale | 399 parents over three rounds and 400 teachers over three valid rounds (886 call attempts; a further 100 teacher calls on 1 to 2 Nov ran the parent agent by mistake and are excluded) |
 | Language | Hindi in Devanagari with common English words; English fallback |
 
 
@@ -72,11 +72,14 @@ I treated the system prompt as the interface. Each version answered a specific f
 | Steps 1 to 5 | Opening, trust, routine, teach-back, commitment | The script itself |
 | PARENT QUESTIONS, SITUATIONS, ALWAYS-ON RULES | Short facts and a priority order (opt-out, then safety, then identity) | Real questions from transcripts become FAQ lines |
 
+**Keeping the prompt short.** From teacher-v2.3, the question-and-answer lines live in a separate FAQ knowledge base (22 rows) instead of the prompt. The prompt keeps only what controls the flow: the steps, the reasons a call may end, and the follow-up for "extra work" and fraud worries. That brings it from about 4.5k to 6.8k tokens down to about 3.7k to 5.6k (estimates; the count depends on the tokenizer), towards a target of under 5k, so the model follows it more reliably and is less likely to make up answers. Rules for one-off cases were left out for the same reason: a hold branch and a rule for WhatsApp call requests each covered about one call per round.
+
 **Key design decisions**
 
 - **Purpose before disclosure.** The first sentence names the school and the programme; "automated call" comes in Step 2. Round 3 opened with "यह एक automated call है" and lost 38 of 122 real people at the opening.
 - **A listening break about 15 s in.** One easy question where any answer is right ("has your child mentioned this?"), so the call feels like a conversation, not a recording.
 - **Teach-back, not agreement.** Saying yes doesn't show understanding: in round 2, all 7 parents with wrong teach-backs still agreed to help. The first answer is scored, corrected once, and never re-tested.
+- **Ask for the action that matters.** Teacher round 4 showed the photo was the step teachers most often left out. teacher-v2.3's commitment asks "Monday को video दिखाकर, क्या आप class के काम की एक photo Tap Buddy chat पर भेज पाएँगे?" It says "class के काम" rather than "पूरी class के काम" so the ask sounds small; "whole class" is explained only if asked.
 - **Test the listener's own job.** Up to v2.8 parents were asked to repeat the child's three steps; 0 of 45 managed it in round 3. v2.9 asks "मंगलवार को video आने पर आप क्या करेंगे?", which is the parent's real role: give the phone and remind.
 - **Words that build trust.** "कोई फ़ीस नहीं" instead of "free"; "activity" instead of "homework"; a fixed fraud line saying Tap never asks for money, OTP or bank details.
 - **No promises at the close.** Thanks only. Every "the team will contact you" line is logged so someone can follow it up.
@@ -86,6 +89,7 @@ I treated the system prompt as the interface. Each version answered a specific f
 
 | Version | Date | Change | Driven by |
 | --- | --- | --- | --- |
+| teacher-v2.3 | 19 Nov | Commitment asks for the photo; teacher's part as three actions; FAQ moved to a knowledge base; meaning-based teach-back scoring in the post-call fields | Teacher round 4 funnel and listening |
 | parent-v2.9 | 12 Nov | School first in the opening; main block cut from about 45 s to 20 s; teach-back on the parent's action; new post-call fields | Round 3 funnel |
 | parent-v2.8 | before 11 Nov | When the call may end, holds, backchannels, turn blocks, variable check, SHORT VERSION | Internal tests on v2.4 |
 | teacher-v2.2-opt | before 3 Nov | "Tap team" identity, RAPID SUMMARY for busy teachers, no callback promises | Round 1 teacher hang-ups |
@@ -117,16 +121,18 @@ The agents run on VocalLabs. Many failures that looked like prompt problems were
 | Parameter | Before | After | Evidence |
 | --- | --- | --- | --- |
 | Parent calling window | Noon (round 1); 6:30 PM (round 2); 6:28 to 7:04 PM (round 3) | 7:00 to 8:30 PM | Round 3 first-attempt answer rate was 49.5% |
-| Teacher calling window | Noon Monday, then 5:05 PM | From 11 AM | At 5:05 PM many teachers were driving or still in class |
-| Concurrency | 10 parallel calls (teachers), not recorded (parents) | 3 | 100 teacher calls placed in 8 minutes all hit the same bad moment |
-| Retries | None, then one retry 1 hour later | One retry the next evening (parents); two retries at least 3 h apart (teachers) | The 1-hour retry reached 25 more parents, but the gap was too short |
-| No-response timeout | Off or longer than the prompt assumed | About 3 to 5 s, and it must hand the bot a turn | Silence stalled calls in tests; greeting silence took 30 to 32 s to end on teacher calls |
+| Teacher calling window | Noon Monday, then 5:05 PM | From 11 AM (round 4: 11:26 AM to 12:04 PM) | At 5:05 PM many teachers were driving or still in class. At 11 AM answers rose from 50% to 62.5%, but 25% of answered teachers still hung up within 10 s |
+| Concurrency | 10 parallel calls (teachers), not recorded (parents) | 3 (parents); 6 in teacher round 4, then 3 to 4 to cover the full 11 AM hour | 100 teacher calls placed in 8 minutes all hit the same bad moment |
+| Retries | None, then one retry 1 hour later | One retry the next evening (parents); one retry at 2 to 3 PM the same day (teachers) | The 1-hour retry reached 25 more parents, but the gap was too short. Teacher round 4 ran with retries off by mistake, so 75 unanswered teachers got one attempt |
+| No-response timeout | Off or longer than the prompt assumed | Parents: about 3 to 5 s, and it must hand the bot a turn. Teachers: the platform nudges after 7 s and hangs up after 25 s | Silence stalled calls in tests; greeting silence took 30 to 32 s to end on teacher calls |
 | Agent assignment | Teacher campaign ran the parent agent | Check agent and prompt version before launch | Round 2: about 50 teachers were asked if they were the child's parent |
-| Post-call fields | Not used in the round 3 report; success\_metric False on every row of all five exports | Checked in the export before any analysis; new fields for v2.9 | The 11 Nov export does hold the fields, and they match the summary-based counts within 1 |
+| Post-call fields | Not used in the round 3 report; success\_metric False on every row of all six exports | Checked in the export before any analysis; new fields for parent-v2.9 and teacher-v2.3 | The 11 Nov export does hold the fields, and they match the summary-based counts within 1. Teacher round 4: Unhandled Topics empty on every row, and teach-back labels too strict |
 
 **Post-call field spec.** Logging is kept out of the spoken prompt. VocalLabs fills structured fields from each transcript, which I specified so they map to the funnel: `last_step_reached` (0 to 5), `teach_back_result` (accurate, wrong\_frame, wrong, no\_answer), `teach_back_photo`, `end_reason`, `team_followup_needed`, `prior_awareness`, `commitment_given`, `unhandled_topics`. `success_metric` is set to an accurate teach-back.
 
-**Cost.** VocalLabs bills about 1 credit per 30 s, so call length drives cost and prompt length doesn't. That made trimming the main block from about 45 s to 20 s a cost decision as well as a UX one. Round 3 cost about 7 credits per parent who heard the core message.
+For teacher-v2.3, five fields are added: `RAPID Summary`, `Teach-back Missing` (which of the three steps was left out), `Correction Given`, `Teacher Feedback` (anything the teacher volunteers about how Tap runs in their school) and `Retry Eligible`. The teach-back rubric is rewritten to judge meaning, read past speech-recognition errors, and keep "agreed without stating a step" separate from a partial answer.
+
+**Cost.** VocalLabs bills about 1 credit per 30 s, so call length drives cost and prompt length doesn't. That made trimming the main block from about 45 s to 20 s a cost decision as well as a UX one. Round 3 cost about 7 credits per parent who heard the core message. Teacher round 4 cost about 6.5 credits per teacher who heard it, and about 10 per teacher who agreed to act. Prompt length doesn't change the bill, but it does affect how reliably the model follows the script, which is why teacher-v2.3 moved the FAQ out.
 
 **Vendor evaluation.** I wrote an evaluation checklist for Gnani.ai so the same prompt could be run side by side on a second platform. Requests to VocalLabs included `ended_by` and `seconds_to_end` in the export, automatic callback scheduling, and voicemail detection (one answering machine was missed in teacher round 3).
 
@@ -139,19 +145,23 @@ The full parent round 3 funnel is in [`claude-reports/2026-11-11_parent_round3_p
 
 The biggest losses come before the explanation starts: 76 parents never answered, and 38 hung up during the opening line. That's what parent-v2.9 targets.
 
-| Measure | Parents R1 (19 Oct) | Parents R2 (2 Nov, v2.4) | Parents R3 (11 Nov, v2.8) | Teachers R1 (19 Oct) | Teachers R3 (3 Nov, v2.2-opt) |
-| --- | --- | --- | --- | --- | --- |
-| Contacts (attempts) | 99 (99) | 100 (100) | 200 (285) | 100 (102) | 100 (100) |
-| Calling time | Noon | 6:30 PM | 6:28 PM, retry about 1 h later | Noon | 5:05 PM |
-| Answer rate | 69% | 73% | 62% (49.5% first attempt) | 61% | 50% |
-| Ended within 10 s, of answered | 26% | 8% | 10% | 20% | 22% |
-| Ended at 11 to 20 s, of answered | 3% | 15% | 24% | 13% | 18% |
-| Listened through to the teach-back | not measured | 24 | 44 | not measured | 11 |
-| Accurate teach-back | not measured | 0 of 24 | 0 of 44 | not measured | 2 of 11 |
-| Agreed to act | not measured | 17 | 28 | not measured | 5 |
-| Credits per answered call | 3.0 | 2.8 | 2.7 | 2.3 | 2.0 |
+| Measure | Parents R1 (19 Oct) | Parents R2 (2 Nov, v2.4) | Parents R3 (11 Nov, v2.8) | Teachers R1 (19 Oct) | Teachers R3 (3 Nov, v2.2-opt) | Teachers R4 (18 Nov, v2.2-opt) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Contacts (attempts) | 99 (99) | 100 (100) | 200 (285) | 100 (102) | 100 (100) | 200 (200) |
+| Calling time | Noon | 6:30 PM | 6:28 PM, retry about 1 h later | Noon | 5:05 PM | 11:26 AM, no retries |
+| Answer rate | 69% | 73% | 62% (49.5% first attempt) | 61% | 50% | 62.5% |
+| Ended within 10 s, of answered | 26% | 8% | 10% | 20% | 22% | 25% |
+| Ended at 11 to 20 s, of answered | 3% | 15% | 24% | 13% | 18% | 11% |
+| Listened through to the teach-back | not measured | 24 | 44 | not measured | 11 | 40 |
+| Accurate teach-back | not measured | 0 of 24 | 0 of 44 | not measured | 2 of 11 | 4 of 40 in the export; 8 of 40 after listening |
+| Agreed to act | not measured | 17 | 28 | not measured | 5 | 30 |
+| Credits per answered call | 3.0 | 2.8 | 2.7 | 2.3 | 2.0 | 2.4 |
 
-All figures are recomputed from the five VocalLabs exports. Teacher round 2 (1 to 2 Nov) is left out because it ran the parent agent. Round numbers follow the [CHANGELOG](../CHANGELOG.md). The listened-through counts come from the export's own field, so they run 1 below the summary-based counts in the round reports (25 and 45). Teacher round 3 also had 4 teachers who heard the RAPID SUMMARY only, which that field doesn't capture.
+All figures are recomputed from the six VocalLabs exports. Teacher round 2 (1 to 2 Nov) is left out because it ran the parent agent. Round numbers follow the [CHANGELOG](../CHANGELOG.md). The listened-through counts come from the export's own field, so they run 1 below the summary-based counts in the round reports (25 and 45). Teacher round 3 also had 4 teachers who heard the RAPID SUMMARY only, which that field doesn't capture; teacher round 4 had about 6.
+
+**Teacher round 4 (18 Nov).** The same prompt as round 3, at 11 AM, on a new list of 200. The funnel: 200 dialled, 125 answered, 87 past the opening, 62 past the identity and time check, about 46 heard the core message, 40 reached the teach-back, 30 agreed. The biggest losses came before the explanation again: 75 didn't answer, and 30 hung up within 8 s, probably in class. Calling at 11 AM and the new list together raised answers from 50% to 62.5% and agreement from 5% to 15%, but hang-ups within 10 s didn't improve.
+
+Listening changed the teach-back result. The export labelled 4 of 40 accurate. All 4 held up, and all 4 checked "wrong" answers were also accurate; in one, speech recognition heard "chat" as "ChatGPT". That makes at least 8 of 40, with 2 "wrong" calls still unchecked. Of the steps teachers did miss, the photo was the most common.
 
 **The clearest win so far:** among answered parent calls, hang-ups in the first 10 s fell from 26% in round 1 to 8% in round 2. Two things changed at once, the opening and the move from noon to evening, so the drop can't be credited to either alone.
 
@@ -170,7 +180,10 @@ The biggest lesson: the core message wasn't failing in the middle of the call. M
 | 3, parents (11 Nov) | "Automated call" in the first sentence plus the identity question lost 56 of 122 real people (46%) | v2.9 names the school first |
 | 3, parents | 17 of 62 left during a 45-second unbroken explanation | Main block cut to about 20 s |
 | 3, parents | 0 of 45 could name the child's three steps; parents said "the child will know" | Teach-back now asks what the parent will do |
-| 3, teachers (3 Nov) | RAPID SUMMARY worked for busy teachers; silence and "एक minute" ended calls | Hold branch and teach-back silence fix for teacher round 4 (18 Nov) |
+| 4, teachers (18 Nov) | Same prompt at 11 AM on a new list: answers rose from 50% to 62.5% and agreement from 5% to 15%, but 25% still hung up within 10 s | Retry at 2 to 3 PM; listen to early hang-ups before changing the opening |
+| 4, teachers | The photo was the step most often missing from the teach-back | teacher-v2.3 asks for the photo in the commitment |
+| 4, teachers | The export labelled accurate teach-backs as wrong | Meaning-based scoring rubric in the post-call fields |
+| 3, teachers (3 Nov) | RAPID SUMMARY worked for busy teachers; silence and "एक minute" ended calls | A hold branch was planned, but round 4 ran v2.2-opt unchanged. It was left out of v2.3, since holds ended about one call per round |
 | Internal tests (3 Nov) | A question the bot couldn't answer ended the call | A closed list of reasons the call may end |
 | 2, parents (1 to 2 Nov) | The parent agent also ran on the teacher list by mistake | Version and agent checked before every launch |
 | 1, both (19 Oct) | Broken variables, noon calls, nothing measured; 26% of answered parents hung up within 10 s | Variable check, evening calls, post-call fields; that figure fell to 8% in round 2 |
@@ -181,11 +194,18 @@ The biggest lesson: the core message wasn't failing in the middle of the call. M
 - Shorter main block → fewer than 17 of 62 lost between the awareness question and the teach-back.
 - New teach-back → accurate answers above 0%. This is a new definition, so it isn't comparable with rounds 2 and 3.
 
+**How the teacher-v2.3 hypotheses will be checked:**
+
+- Photo in the commitment → 10% of contacts agree to send the photo, with agreement of any kind staying at or above 12%. This is a new question, so it isn't comparable with round 4's 15%.
+- Retry at 2 to 3 PM → answer rate with retries at 70%, against 62.5% on one attempt.
+- New scoring → accurate teach-back at 6% of contacts, compared with round 4 rescored under the same rubric.
+
 **What I'd do differently**
 
 - Agree the measurement plan and export fields before the first call, not after. Round 3's missing fields cost a round of precise data.
 - Run the full internal test suite before every live round. Calls 8 to 14, including opt-out and safety, weren't run before round 3.
 - Change one thing per round where possible. v2.9 changes three, which makes it harder to say which one worked.
+- Check automatic labels by ear in the first round they're used. Round 4's teach-back labels caught at most half of the accurate answers.
 - Plan the randomised comparison early. Only WhatsApp-only versus WhatsApp-plus-call, at about 1,100 per arm, can show an effect on weekly submissions.
 
-**Still open:** who follows up the "team will contact you" promises; whether teacher round 4 at 11 AM on 18 Nov reaches more teachers; and whether any of this moves the 20% submission rate.
+**Still open:** who follows up the "team will contact you" promises; why a quarter of answered teachers still hang up within 10 s; and whether any of this moves the 20% submission rate.

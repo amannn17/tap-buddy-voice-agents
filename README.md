@@ -16,9 +16,9 @@ The full write-up is in [`docs/case-study.md`](docs/case-study.md).
 | | |
 | --- | --- |
 | Agents | Parent awareness, teacher awareness |
-| Campaign rounds | 3 parent rounds and 2 valid teacher rounds; teacher round 4 on 18 Nov |
-| Contacts dialled | 399 parents and 200 teachers (686 call attempts) |
-| Prompt versions | 5 tracked across two agents |
+| Campaign rounds | 3 parent rounds and 3 valid teacher rounds; parent round 4 and teacher round 5 planned |
+| Contacts dialled | 399 parents and 400 teachers (886 call attempts) |
+| Prompt versions | 6 tracked across two agents |
 | Language | Hindi (Devanagari) with common English words; English fallback |
 
 Teacher round 2 (1 to 2 Nov) ran the parent agent by mistake, so its results aren't counted. Round numbers follow the [CHANGELOG](CHANGELOG.md).
@@ -44,14 +44,16 @@ Round 1 (19 Oct) broke in ways that set the brief for everything after it:
 
 ## Results so far
 
-| Measure | Parents R1 | Parents R2 (v2.4) | Parents R3 (v2.8) | Teachers R1 | Teachers R3 (v2.2-opt) |
-| --- | --- | --- | --- | --- | --- |
-| Answer rate | 69% | 73% | 62% (49.5% first attempt) | 61% | 50% |
-| Ended within 10 s, of answered | 26% | 8% | 10% | 20% | 22% |
-| Listened through to the teach-back | not measured | 24 of 100 | 44 of 200 | not measured | 11 of 100 |
-| Accurate teach-back | not measured | 0 of 24 | 0 of 44 | not measured | 2 of 11 |
+| Measure | Parents R1 | Parents R2 (v2.4) | Parents R3 (v2.8) | Teachers R1 | Teachers R3 (v2.2-opt) | Teachers R4 (v2.2-opt) |
+| --- | --- | --- | --- | --- | --- | --- |
+| Answer rate | 69% | 73% | 62% (49.5% first attempt) | 61% | 50% | 62.5% |
+| Ended within 10 s, of answered | 26% | 8% | 10% | 20% | 22% | 25% |
+| Listened through to the teach-back | not measured | 24 of 100 | 44 of 200 | not measured | 11 of 100 | 40 of 200 |
+| Accurate teach-back | not measured | 0 of 24 | 0 of 44 | not measured | 2 of 11 | 8 of 40 after listening (4 in the export) |
 
 Among answered parent calls, hang-ups in the first 10 s fell from 26% to 8% after round 1, when the opening was rewritten and calls moved from noon to the evening. Technical breaks fell to about 5% of answered calls in round 2. Round 3 showed where the remaining loss sits: 46% of real people were lost at the opening and identity question, and 17 of 62 during a 45-second explanation.
+
+Teacher round 4 (18 Nov) ran the same prompt as round 3 at 11 AM on a new list. Answers rose from 50% to 62.5% and agreement tripled from 5% to 15%, but a quarter of answered teachers still hung up within 10 s. Listening showed the export's teach-back scoring was too strict: all 4 checked "wrong" answers were accurate.
 
 None of this yet measures weekly submissions. That needs a randomised comparison of WhatsApp only against WhatsApp plus a call (about 1,100 contacts per arm). More detail: [`campaign-analytics/round-summaries.md`](campaign-analytics/round-summaries.md).
 
@@ -63,11 +65,20 @@ None of this yet measures weekly submissions. That needs a randomised comparison
 | The explanation is cut from about 45 s to 20 s | 17 of 62 parents left during it |
 | The teach-back asks what the *parent* will do | 0 of 45 could repeat the child's three steps; the parent's real job is to hand over the phone and remind |
 
+## What changes in teacher-v2.3
+
+| Change | Why |
+| --- | --- |
+| The commitment asks teachers to send a photo of the class's work, not only to show the video | The photo was the step teachers most often left out of the round 4 teach-back |
+| The teacher's part is written as three actions: show the video in one period, get students to do the activity, send one photo | Puts the emphasis on what the teacher does, and stops "never add duties" conflicting with the photo ask |
+| Teacher questions move from the prompt to a 22-row FAQ knowledge base | Keeps the prompt under 5k tokens, so the model follows it more reliably and is less likely to make up answers |
+| Teach-back scoring is rewritten in the post-call fields, judged on meaning | Round 4's export labelled accurate answers as wrong |
+
 ## Repo map
 
 | Folder | Contents |
 | --- | --- |
-| [`prompts/`](prompts/) | Every prompt version, each with its change table ([index](prompts/README.md)) |
+| [`prompts/`](prompts/) | Every prompt version, each with its change table, plus paste-ready prompts and FAQ sheets ([index](prompts/README.md)) |
 | [`claude-reports/`](claude-reports/) | Campaign and internal test reports, drafted with Claude from the VocalLabs exports |
 | [`campaign-analytics/`](campaign-analytics/) | Round summaries, measure definitions and redacted listening lists |
 | [`test-logs/`](test-logs/) | Scripted internal test calls for each agent |
@@ -75,7 +86,7 @@ None of this yet measures weekly submissions. That needs a randomised comparison
 | [`docs/`](docs/) | The case study, call-flow diagrams and images |
 | [`CHANGELOG.md`](CHANGELOG.md) | Which prompt version ran in which round |
 
-Start with [`prompts/parent/parent-v2.9.md`](prompts/parent/parent-v2.9.md) and the [round 3 report](claude-reports/2026-11-11_parent_round3_parent-v2.8.md).
+Start with [`prompts/parent/parent-v2.9.md`](prompts/parent/parent-v2.9.md) and the [parent round 3 report](claude-reports/2026-11-11_parent_round3_parent-v2.8.md), or for teachers, [`prompts/teacher/teacher-v2.3.md`](prompts/teacher/teacher-v2.3.md) and the [teacher round 4 report](claude-reports/2026-11-18_teacher_round4_teacher-v2.2-opt.md).
 
 ## How I used Claude
 
@@ -96,6 +107,8 @@ After every round:
 - "Yes" isn't understanding. Test the listener's own role, in their own words.
 - Many "prompt bugs" are platform settings: timeouts, retries, call windows.
 - Agree the measurement plan and export fields before the first call.
+- Check automatic scoring by ear before trusting it. Speech recognition errors can turn a correct answer into a "wrong" label.
+- Don't write rules for one-off cases. A shorter prompt is followed more reliably.
 
 ## Privacy
 
