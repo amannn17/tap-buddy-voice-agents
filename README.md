@@ -80,10 +80,10 @@ None of this yet measures weekly submissions. That needs a randomised comparison
 | --- | --- |
 | [`prompts/`](prompts/) | Every prompt version, each with its change table, plus paste-ready prompts and FAQ sheets ([index](prompts/README.md)) |
 | [`claude-reports/`](claude-reports/) | Campaign and internal test reports, drafted with Claude from the VocalLabs exports |
-| [`campaign-analytics/`](campaign-analytics/) | Round summaries, measure definitions and redacted listening lists |
+| [`campaign-analytics/`](campaign-analytics/) | Round summaries, measure definitions and redacted listening lists (round 2) |
 | [`test-logs/`](test-logs/) | Scripted internal test calls for each agent |
 | [`templates/`](templates/) | The template for logging each new round |
-| [`docs/`](docs/) | The case study, call-flow diagrams and images |
+| [`docs/`](docs/) | The case study (`images/` and `call-flows/` are placeholders for diagrams) |
 | [`CHANGELOG.md`](CHANGELOG.md) | Which prompt version ran in which round |
 
 Start with [`prompts/parent/parent-v2.9.md`](prompts/parent/parent-v2.9.md) and the [parent round 3 report](claude-reports/2026-11-11_parent_round3_parent-v2.8.md), or for teachers, [`prompts/teacher/teacher-v2.3.md`](prompts/teacher/teacher-v2.3.md) and the [teacher round 4 report](claude-reports/2026-11-18_teacher_round4_teacher-v2.2-opt.md).
@@ -112,8 +112,8 @@ After every round:
 
 ## Privacy
 
-No phone numbers, recordings, call IDs or names of children, parents or schools are included. Raw exports are kept out of this repo (see [`.gitignore`](.gitignore)).
+No phone numbers, recordings, call IDs or names of children, parents, teachers or schools are included. Raw exports, including Numbers files, are kept out of this repo (see [`.gitignore`](.gitignore)).
 
 ## Credits
 
-Built for The Apprentice Project (add TAP's website link). Prompts and campaign data are shared with TAP's permission.
+Built for [The Apprentice Project](https://www.theapprenticeproject.org/). Prompts and campaign data are shared with TAP's permission.

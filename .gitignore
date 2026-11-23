@@ -3,6 +3,9 @@ raw-exports/
 *.csv
 *_raw*.xlsx
 Campaign_Wise_Report*
+Campaign_*
+# Apple Numbers files can't be checked for redaction in review; export redacted .xlsx instead
+*.numbers
 # Unredacted listening lists
 *listening_list.xlsx
 
