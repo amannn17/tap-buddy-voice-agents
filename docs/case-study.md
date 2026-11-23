@@ -2,9 +2,8 @@
 
 Last updated: 19 Nov 2026
 
-## Headline
+## Designing for the first 20 seconds: voice AI for school parents in India
 
-**Headline:** Designing for the first 20 seconds: voice AI for school parents in India
 
 **Subtitle:** How I took Tap Buddy's outbound calling from a broken first pilot to a measured, versioned conversation system: 886 call attempts across six campaigns, six tracked prompt versions across two agents, and a funnel that shows exactly where each listener drops off.
 
@@ -111,8 +110,6 @@ The agent says each listener's school and child name aloud, so a bad row in the 
 **In the prompt**
 
 The VARIABLE CHECK block means a bad row degrades gracefully instead of breaking the call. If a variable is empty or looks like a placeholder (braces, underscores, or the words "student" and "name"), the agent never says it. It says "आपके बच्चे" or "बच्चे के school" instead and switches to a fallback identity question.
-
-**Honest framing for your portfolio.** Don't claim injection became error-free. Round 2 still read out `{{student_name}}` once, and round 3 surfaced parent names in the student column. The stronger story is defence in depth: data checks catch most problems, and the prompt's fallback stops the rest from reaching the listener.
 
 ## Process 3: vendor ops and parameter tuning
 
